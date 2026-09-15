@@ -1,54 +1,104 @@
 # Construction Video Prompt Engineering Skill
 
-Current version: `v0.1`
+Version: `v0.1`
 
-An agent skill for writing copy-ready prompts for short construction-process video generation. The user describes one construction stage, the intended action, and the desired visual effect; the skill turns that description into structured positive and negative prompts for a video model.
+An agent skill for writing controllable prompts for short construction-process videos. The user describes one construction stage, the intended action, and the desired visual effect. The skill converts that description into a copy-ready positive prompt and a focused negative prompt.
 
-This skill only generates prompt text. It does not create images, upload frames, run a video model, or guarantee a model result.
+The skill is a prompt-authoring layer only. It does not create first or last frame images, run ComfyUI, submit cloud jobs, or guarantee a generated video result.
 
-## What This Skill Is For
+## Primary Target
 
-Use this skill when you need a prompt for a controlled construction-process clip, especially when the video should preserve:
+This skill is designed primarily for **first/last-frame video generation**, especially workflows that receive both a starting image and an ending image and synthesize the motion between them.
 
-- the construction stage boundary;
-- the identity and position of key objects;
-- a fixed or clearly specified camera;
-- the direction and spatial range of the construction action;
-- the difference between the starting state and target state;
-- negative constraints such as no extra machinery, no premature later-stage content, no labels, and no unrelated geometry changes.
+The main project-aligned target is:
 
-The default use case is description-first authoring: users do not need to send the first and last frames to the agent. The generated prompt is first/last-frame-ready by default, so users can later paste the prompt into a compatible video model and upload the corresponding start and end frames there.
+- **Wan 2.2 FLF2V**: Wan 2.2 First-Last-Frame-to-Video generation;
+- **ComfyUI workflows** that expose separate first-frame and last-frame inputs;
+- workflows with positive and negative text conditioning;
+- short image-to-video clips in which the scene should remain stable while one construction action occurs.
 
-## Suitable Video Models
+This design choice is important: construction-process videos usually need a reliable relationship between two engineering states. The first frame defines the starting condition, the last frame defines the target condition, and the prompt describes the allowed action between them.
 
-This skill is model-agnostic at the prompt-writing level. It is most useful for short video workflows that accept:
+## Wan 2.2 and ComfyUI Workflow Compatibility
 
-- a text prompt;
-- a start frame and an end frame, or an equivalent first/last-frame condition;
-- optional positive and negative prompt fields;
-- image-to-video or frame-conditioned video generation.
+The skill's default prompt structure matches a Wan 2.2 FLF2V workflow with the following general components:
 
-Typical compatible targets include first/last-frame video workflows, start/end-frame image-to-video systems, and construction-oriented video pipelines built around tools such as ComfyUI or other node-based generation interfaces.
+```text
+First frame image --------------\
+                                  -> first/last-frame video conditioning
+Last frame image ---------------/                    |
+                                                       v
+Positive prompt -> Wan text encoder -> positive conditioning
+Negative prompt -> Wan text encoder -> negative conditioning
+                                                       |
+Wan 2.2 high-noise model -----------------------------|
+Wan 2.2 low-noise model ------------------------------|-> sampling / decoding
+Wan VAE ----------------------------------------------|
+                                                       v
+                                                   output video
+```
 
-It can also be adapted to single-image image-to-video models, but the prompt should be revised because those models do not have a true target end frame. For pure text-to-video models, ask explicitly for a text-to-video prompt; endpoint wording should then be omitted.
+A compatible ComfyUI workflow commonly includes:
 
-This repository does not claim support for a specific seed, sampler, provider, model checkpoint, resolution, or cloud service. Always verify the actual target workflow before relying on model-specific syntax.
+- separate loaders or inputs for the first and last images;
+- Wan 2.2 high-noise and low-noise video model components, commonly using the 14B model family;
+- the Wan UMT5 text encoder;
+- the Wan VAE;
+- a first/last-frame conditioning node such as `WanFirstLastFrameToVideo`;
+- positive and negative prompt conditioning;
+- sampling, video creation, and video saving nodes.
+
+The exact node names, model files, sampler settings, resolution limits, frame count, and output format may vary between ComfyUI workflows. This skill does not hard-code those parameters. It supplies the semantic prompt layer that describes:
+
+1. what must remain fixed;
+2. what construction action is allowed;
+3. where the action occurs;
+4. in which direction the action develops;
+5. how the starting and target states are related;
+6. which artifacts or later-stage elements must not appear.
+
+## Why First/Last-Frame Models Are the Best Fit
+
+Construction videos are state-transition problems rather than purely cinematic scenes. A frame-conditioned workflow is therefore usually a better fit than pure text-to-video when the result must preserve engineering structure.
+
+First/last-frame conditioning is useful for:
+
+- preserving the position and identity of machines, structures, and site elements;
+- defining the exact beginning and end of one construction operation;
+- controlling the appearance order of components;
+- limiting changes to a marked area or one component;
+- reducing camera drift and unintended geometry changes;
+- making adjacent clips easier to connect through shared endpoint states.
+
+The skill writes prompts for this workflow by default. It does not require the user to provide the frames to the agent. The user can describe the intended clip first, receive the prompt, and upload the corresponding first and last frames later in ComfyUI or another compatible video workflow.
+
+## Model Compatibility
+
+| Video workflow type | Compatibility | Notes |
+|---|---|---|
+| Wan 2.2 FLF2V in ComfyUI | Primary | The default prompt structure is designed for this workflow shape. |
+| Other first/last-frame video workflows | Strong with adaptation | Keep the construction constraints and adapt the model-specific prompt fields. |
+| Other start/end-frame image-to-video workflows | Applicable | Verify frame order, negative-prompt support, and workflow-specific syntax. |
+| Single-image image-to-video workflows | Partial | Keep the action and object-continuity rules, but remove unsupported target-endpoint claims. |
+| Pure text-to-video workflows | Limited | Ask explicitly for a text-to-video prompt; no endpoint constraint can be enforced by this skill. |
+
+The skill does not claim that every model supports first/last-frame conditioning, negative prompts, the same tokenization, or the same prompt syntax. Verify the target workflow before using model-specific features.
 
 ## Installation
 
-Install this folder as a Codex skill by placing it under your Codex skills directory, for example:
+Install this folder as a Codex skill under your Codex skills directory:
 
 ```text
 ~/.codex/skills/construction-video-prompt-engineering/
 ```
 
-The required entry point is:
+The required skill entry point is:
 
 ```text
 SKILL.md
 ```
 
-Optional UI metadata is included in:
+The optional UI metadata file is:
 
 ```text
 agents/openai.yaml
@@ -56,22 +106,22 @@ agents/openai.yaml
 
 ## Basic Usage
 
-After installing the skill, ask the agent for a construction video prompt:
+Describe one construction clip and ask the agent to use the skill:
 
 ```text
-Use $construction-video-prompt-engineering to write a prompt for a fixed-camera
-construction video. The current stage is foundation pit excavation. Only the
-exposed soil inside the pit should be removed from top to bottom. The retaining
-wall, excavator position, surrounding ground, and camera must remain unchanged.
-Do not show workers, water, labels, or the next construction stage. I will upload
-the first and last frames to the video model later.
+Use $construction-video-prompt-engineering to write a Wan 2.2 FLF2V prompt.
+The current stage is foundation pit excavation. Keep the retaining wall,
+excavator, surrounding ground, and camera unchanged. Remove only the exposed
+soil inside the pit from top to bottom so the change in excavation depth is
+clear. Do not show workers, labels, water, or the next construction stage. I
+will upload the first and last frames to ComfyUI later.
 ```
 
-The skill should return prompt text that can be copied into the target video workflow.
+The agent should return a positive prompt and a negative prompt that can be copied into the corresponding ComfyUI text-conditioning fields.
 
 ## Recommended Input
 
-Describe one clip at a time. A short paragraph is enough, but the following fields help the agent produce a more controllable prompt:
+A natural-language paragraph is sufficient. The following information improves controllability:
 
 ```yaml
 construction_stage: "current construction stage"
@@ -81,47 +131,52 @@ camera_behavior: "fixed camera, close-up, pullback, or unknown"
 locked_objects: "objects that must remain unchanged"
 allowed_change: "what may change during the clip"
 action_area_and_direction: "where the action happens and in which direction"
-forbidden_content: "objects, stages, labels, or artifacts that must not appear"
-target_workflow: "optional model or workflow name"
+forbidden_content: "objects or stages that must not appear"
+target_model_or_workflow: "optional, for example Wan 2.2 FLF2V in ComfyUI"
 output_requirements: "optional duration, aspect ratio, resolution, or fps"
-observed_failure: "optional failure to repair from a previous result"
+observed_failure: "optional failure from an earlier generation"
 ```
 
-If frames are not supplied, the skill should not ask for them just to draft the prompt. If frames are supplied, the agent may use them to refine object names, spatial relations, and endpoint wording.
+First and last frame files are optional for prompt writing. If they are not supplied, the skill must not block on missing files or invent their contents. If they are supplied, the agent may use them to refine object names, spatial relations, counts, and endpoint wording.
 
 ## Expected Output
 
-For an ordinary prompt request, the skill should produce:
+For a normal request, the skill produces:
 
-1. An English positive prompt.
-2. An English negative prompt.
-3. Chinese review text when the user asks in Chinese or requests bilingual output.
-4. A short assumption note only when an unstated choice materially affects the prompt.
+1. an English positive prompt;
+2. an English negative prompt;
+3. Chinese review text when requested by the user;
+4. a short assumption note only when an unstated choice materially affects the prompt.
 
-The positive prompt should normally state that the uploaded first frame is the starting state and the uploaded last frame is the target state. This endpoint wording should be omitted only when the user explicitly asks for pure text-to-video or says no first/last-frame workflow will be used.
+For first/last-frame workflows, the positive prompt normally states that the uploaded first frame is the exact starting state and the uploaded last frame is the target state. Only the described construction action may change between those states.
+
+If the user explicitly requests pure text-to-video, the endpoint wording is omitted.
 
 ## Prompting Principles
 
-The skill prioritizes engineering control over generic cinematic style:
+The skill emphasizes construction control over generic cinematic language:
 
-- describe one primary construction action per clip;
-- lock unchanged objects explicitly;
+- describe one primary action per clip;
+- identify the current construction stage;
+- lock unchanged objects and the camera;
 - define the action area and direction;
-- keep camera movement conservative unless the user asks for it;
-- prevent later construction stages from appearing early;
-- avoid invented counts, dimensions, model names, seeds, or output settings;
-- keep negative prompts focused on likely construction-video failures.
+- preserve object identity and spatial relationships;
+- state the intended visible effect;
+- prevent later-stage or unrelated content from appearing early;
+- use negative prompts that target the likely failure modes;
+- do not invent model names, counts, dimensions, seeds, or output settings.
 
 ## Boundaries
 
 This skill does not:
 
-- run generation jobs;
-- create first or last frames;
-- inspect videos unless the user supplies them in a separate QA task;
-- certify construction safety or engineering correctness;
-- guarantee that any particular model will produce a stable result;
-- bundle private BIM files, project media, model weights, credentials, or cloud workflow assets.
+- generate or edit images;
+- generate or edit videos;
+- execute ComfyUI or cloud workflows;
+- inspect a video unless the user supplies it for a separate repair or QA task;
+- certify construction safety, engineering compliance, or construction sequencing;
+- guarantee stable results for any particular model or seed;
+- include private project media, BIM files, model weights, credentials, or workflow assets.
 
 ## Testing
 
@@ -131,15 +186,15 @@ Text-only evaluation cases are provided in:
 evals/evals.json
 ```
 
-These cases check whether the skill follows the expected prompt-writing behavior, such as generating prompts from descriptions without requiring frames, handling pure text-to-video requests, and avoiding unsupported claims.
+The cases check description-first prompt generation, first/last-frame behavior, pure text-to-video handling, failure repair, and avoidance of unsupported claims.
 
-Run the tests manually according to:
+Run the manual evaluation procedure in:
 
 ```text
 evals/README.md
 ```
 
-These tests evaluate prompt behavior only. They are not proof that a specific video model will render a high-quality clip.
+These evaluations test prompt behavior. They do not prove that a particular Wan 2.2 checkpoint, ComfyUI workflow, sampler, or parameter set will produce a specific visual result.
 
 ## Repository Layout
 
