@@ -1,8 +1,8 @@
 interface:
   display_name: "Construction Video Prompt Engineering"
-  short_description: "Construction video prompts with frame-aware control"
+  short_description: "Bilingual construction video prompts with clip-type and frame-size control"
   brand_color: "#2563EB"
-  default_prompt: "Use $construction-video-prompt-engineering to write a copy-ready construction video prompt from my stage description."
+  default_prompt: "Use $construction-video-prompt-engineering to write English and Chinese construction video prompts. I will provide the clip type, output frame size, stage or subject, and intended action or viewpoint change."
 
 policy:
   allow_implicit_invocation: true

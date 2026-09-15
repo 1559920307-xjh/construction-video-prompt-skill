@@ -2,6 +2,28 @@
 
 Use one primary pattern per clip. Replace project-specific nouns and counts with the values from the state card.
 
+## Clip-Type Routing
+
+Declare the requested output frame size in both positive prompts, and use exactly
+one of these clip types:
+
+```text
+Clip type: construction_action.
+Output frame size: [width]x[height] ([aspect ratio]).
+```
+
+```text
+Clip type: viewpoint_transition.
+Output frame size: [width]x[height] ([aspect ratio]).
+Camera/viewpoint changes only. Keep the construction state unchanged.
+```
+
+```text
+Clip type: static_showcase.
+Output frame size: [width]x[height] ([aspect ratio]).
+Present the subject steadily. Keep the construction state and camera unchanged.
+```
+
 ## Fixed-Camera State Change
 
 Use when construction changes but the viewpoint should stay fixed:

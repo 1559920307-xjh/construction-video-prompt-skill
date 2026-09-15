@@ -15,6 +15,10 @@ These are text-only behavioral evaluations for the public skill package. They te
 - a workflow with no verified output;
 - a description-only hammer-pile request that should still produce first/last-frame-ready prompts;
 - an explicit pure text-to-video request where endpoint wording should be omitted.
+- required clip-type and output-frame-size collection for ordinary prompt generation;
+- simultaneous English and Chinese positive/negative prompt output;
+- a missing-required-input request that should be clarified before prompt generation;
+- separate routing for viewpoint transitions and static showcases.
 
 ## Manual Test Procedure
 
@@ -32,6 +36,9 @@ These are text-only behavioral evaluations for the public skill package. They te
 - Style differences are acceptable when the copy-ready prompts contain the required engineering constraints and evidence treatment is appropriate to the request.
 - A response must not block on absent frames for an ordinary description-first request.
 - Ordinary construction-video prompts should include first/last-frame endpoint wording by default.
+- Ordinary prompt-generation requests must identify the clip type and output frame size. The positive prompts should repeat the requested frame size.
+- Ordinary prompt-generation requests should return both English and Chinese positive/negative prompt blocks.
+- If clip type or output frame size is missing from an ordinary prompt request, the agent should ask for the missing field instead of guessing.
 - Endpoint wording should be omitted only when the user explicitly asks for pure text-to-video or no first/last-frame workflow.
 - A response must not invent unavailable frame contents, model capabilities, seed values, licenses, benchmark scores, or successful outputs.
 

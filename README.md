@@ -2,7 +2,7 @@
 
 Version: `v0.1`
 
-An agent skill for writing controllable prompts for short construction-process videos. The user describes one construction stage, the intended action, and the desired visual effect. The skill converts that description into a copy-ready positive prompt and a focused negative prompt.
+An agent skill for writing controllable prompts for short engineering and construction videos. The user identifies whether the clip is a construction action, a viewpoint transition, or a static showcase; provides the requested output frame size; and describes the intended action or visual effect. The skill converts that description into copy-ready English and Chinese positive and negative prompts.
 
 The skill is a prompt-authoring layer only. It does not create first or last frame images, run ComfyUI, submit cloud jobs, or guarantee a generated video result.
 
@@ -15,7 +15,7 @@ The main project-aligned target is:
 - **Wan 2.2 FLF2V**: Wan 2.2 First-Last-Frame-to-Video generation;
 - **ComfyUI workflows** that expose separate first-frame and last-frame inputs;
 - workflows with positive and negative text conditioning;
-- short image-to-video clips in which the scene should remain stable while one construction action occurs.
+- short image-to-video clips in which the scene remains controlled during one construction action, one viewpoint transition, or one static showcase.
 
 This design choice is important: construction-process videos usually need a reliable relationship between two engineering states. The first frame defines the starting condition, the last frame defines the target condition, and the prompt describes the allowed action between them.
 
@@ -106,26 +106,53 @@ agents/openai.yaml
 
 ## Basic Usage
 
-Describe one construction clip and ask the agent to use the skill:
+Describe one clip and explicitly provide the clip type and output frame size:
 
 ```text
 Use $construction-video-prompt-engineering to write a Wan 2.2 FLF2V prompt.
-The current stage is foundation pit excavation. Keep the retaining wall,
-excavator, surrounding ground, and camera unchanged. Remove only the exposed
-soil inside the pit from top to bottom so the change in excavation depth is
-clear. Do not show workers, labels, water, or the next construction stage. I
-will upload the first and last frames to ComfyUI later.
+Clip type: construction_action.
+Output frame size: 1920x1080 (16:9).
+Duration: 3-5 seconds.
+I have first and last frame images for a hammer-driven pile installation clip.
+Show one complete construction action: the hammer lifts vertically, then falls
+vertically and makes one impact on the pile cap; the pile sinks vertically by
+approximately 25% relative to its initial reference position. Keep the
+pile-driving rig, guide frame, wire rope, hammer, pile cap, pile, construction
+site, camera position, and composition unchanged. Do not show workers, extra
+piles, multiple impacts, repeated cycles, text, or watermarks. I will upload
+the first and last frames to the Wan 2.2 FLF2V ComfyUI workflow.
 ```
 
-The agent should return a positive prompt and a negative prompt that can be copied into the corresponding ComfyUI text-conditioning fields.
+The agent should return four copy-ready prompt blocks:
+
+1. English positive prompt.
+2. English negative prompt.
+3. Chinese positive prompt.
+4. Chinese negative prompt.
+
+The two positive prompts must explicitly mention the declared clip type and output frame size. The Chinese version is for semantic comparison before the English version is pasted into the video workflow.
+
+## Required Prompt Inputs
+
+For ordinary prompt generation, provide these two fields explicitly:
+
+- **Clip type**:
+  - `construction_action`: the construction state changes because of one visible construction operation.
+  - `viewpoint_transition`: the camera or viewpoint changes while the construction state remains unchanged.
+  - `static_showcase`: the subject is presented from a stable view without a construction-state change or deliberate camera move.
+- **Output frame size**: provide the exact width and height in pixels, preferably with the aspect ratio, for example `1920x1080 (16:9)` or `1024x576 (16:9)`.
+
+If either required field is missing, the agent should ask for it instead of guessing. First and last frame images are optional for writing the prompt and can be uploaded later to the target video workflow.
 
 ## Recommended Input
 
 A natural-language paragraph is sufficient. The following information improves controllability:
 
 ```yaml
-construction_stage: "current construction stage"
-primary_action: "one visible action in this clip"
+clip_type: "construction_action | viewpoint_transition | static_showcase"
+frame_size: "1920x1080 (16:9)"
+construction_stage_or_subject: "current construction stage or subject being shown"
+primary_action_or_viewpoint_change: "one visible construction action or one camera/viewpoint change"
 desired_effect: "what the viewer should clearly understand"
 camera_behavior: "fixed camera, close-up, pullback, or unknown"
 locked_objects: "objects that must remain unchanged"
@@ -133,7 +160,8 @@ allowed_change: "what may change during the clip"
 action_area_and_direction: "where the action happens and in which direction"
 forbidden_content: "objects or stages that must not appear"
 target_model_or_workflow: "optional, for example Wan 2.2 FLF2V in ComfyUI"
-output_requirements: "optional duration, aspect ratio, resolution, or fps"
+duration: "optional, for example 3-5 seconds"
+output_settings: "optional fps, seed, sampler, or other workflow settings"
 observed_failure: "optional failure from an earlier generation"
 ```
 
@@ -145,10 +173,11 @@ For a normal request, the skill produces:
 
 1. an English positive prompt;
 2. an English negative prompt;
-3. Chinese review text when requested by the user;
-4. a short assumption note only when an unstated choice materially affects the prompt.
+3. a Chinese positive prompt;
+4. a Chinese negative prompt;
+5. a short assumption or adapter note only when an unstated choice materially affects the prompt.
 
-For first/last-frame workflows, the positive prompt normally states that the uploaded first frame is the exact starting state and the uploaded last frame is the target state. Only the described construction action may change between those states.
+For first/last-frame workflows, both positive prompts normally state that the uploaded first frame is the exact starting state and the uploaded last frame is the target state. They also include the declared clip type and exact output frame size. Only the change allowed by that clip type may occur between those states.
 
 If the user explicitly requests pure text-to-video, the endpoint wording is omitted.
 
@@ -157,6 +186,8 @@ If the user explicitly requests pure text-to-video, the endpoint wording is omit
 The skill emphasizes construction control over generic cinematic language:
 
 - describe one primary action per clip;
+- classify the clip as a construction action, viewpoint transition, or static showcase;
+- include the requested output frame size in both positive prompts;
 - identify the current construction stage;
 - lock unchanged objects and the camera;
 - define the action area and direction;
@@ -164,7 +195,9 @@ The skill emphasizes construction control over generic cinematic language:
 - state the intended visible effect;
 - prevent later-stage or unrelated content from appearing early;
 - use negative prompts that target the likely failure modes;
-- do not invent model names, counts, dimensions, seeds, or output settings.
+- do not invent model names, engineering counts or dimensions, seeds, or workflow settings;
+- keep the English and Chinese versions semantically aligned;
+- distinguish prompt-level frame-size wording from the actual resolution configured in the video workflow.
 
 ## Boundaries
 

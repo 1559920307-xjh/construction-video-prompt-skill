@@ -5,7 +5,7 @@
   "evals": [
     {
       "id": "trigger-positive-01",
-      "prompt": "I want a fixed-camera construction video of the first excavation layer of a foundation pit. Keep the retaining wall and excavator positions unchanged. Remove only the exposed soil inside the pit from the top downward so the change in excavation depth is clear. I will upload the first and last frames to the video model later. Output copy-ready Chinese and English positive and negative prompts.",
+      "prompt": "Clip type: construction_action. Output frame size: 1920x1080 (16:9). I want a fixed-camera construction video of the first excavation layer of a foundation pit. Keep the retaining wall and excavator positions unchanged. Remove only the exposed soil inside the pit from the top downward so the change in excavation depth is clear. I will upload the first and last frames to the video model later. Output copy-ready Chinese and English positive and negative prompts.",
       "expected_route": "use_skill",
       "expectations": [
         "does not block on the absent frames",
@@ -44,7 +44,7 @@
     },
     {
       "id": "behavior-01",
-      "prompt": "The stage is reinforcement and embedded-part installation. The first frame contains only the blinding layer, and the last frame contains a sparse reinforcement grid and a specified number of bolts. Use these endpoint frames to produce Chinese and English positive and negative prompts.",
+      "prompt": "Clip type: construction_action. Output frame size: 1920x1080 (16:9). The stage is reinforcement and embedded-part installation. The first frame contains only the blinding layer, and the last frame contains a sparse reinforcement grid and a specified number of bolts. Use these endpoint frames to produce Chinese and English positive and negative prompts.",
       "expected_route": "use_skill",
       "expectations": [
         "states the appearance order",
@@ -76,7 +76,7 @@
     },
     {
       "id": "behavior-04",
-      "prompt": "I want a construction-video prompt for hammer pile driving. Use a fixed camera. The hammer drops to strike the pile cap, and the precast pile sinks vertically. The video must clearly show the hammer impacts and downward penetration. Do not show workers, extra piles, text, or a completed group-pile state. I will upload the first and last frames later.",
+      "prompt": "Clip type: construction_action. Output frame size: 1920x1080 (16:9). I want a construction-video prompt for hammer pile driving. Use a fixed camera. The hammer drops to strike the pile cap, and the precast pile sinks vertically. The video must clearly show the hammer impacts and downward penetration. Do not show workers, extra piles, text, or a completed group-pile state. I will upload the first and last frames later.",
       "expected_route": "use_skill",
       "expectations": [
         "produces copy-ready prompts without requiring the frames first",
@@ -88,13 +88,47 @@
     },
     {
       "id": "behavior-05",
-      "prompt": "Write a pure text-to-video prompt without first or last frames. Use a fixed camera to show concrete pouring. Let concrete gradually fill only the inside of the formwork while the formwork and reinforcement remain unchanged. Do not show a cured or completed state.",
+      "prompt": "Clip type: construction_action. Output frame size: 1920x1080 (16:9). Write a pure text-to-video prompt without first or last frames. Use a fixed camera to show concrete pouring. Let concrete gradually fill only the inside of the formwork while the formwork and reinforcement remain unchanged. Do not show a cured or completed state.",
       "expected_route": "use_skill",
       "expectations": [
         "omits first/last-frame endpoint wording because pure text-to-video is explicitly requested",
         "still locks the camera, formwork, and reinforcement",
         "describes concrete filling only inside the formwork",
         "forbids later curing or completed-stage content"
+      ]
+    },
+    {
+      "id": "behavior-06",
+      "prompt": "I want a short engineering video of a completed bridge pier. Output copy-ready prompts for the agent.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "asks for the missing clip type and output frame size before generating prompts",
+        "does not guess construction action, viewpoint transition, or static showcase",
+        "does not invent a frame size"
+      ]
+    },
+    {
+      "id": "behavior-07",
+      "prompt": "Clip type: viewpoint_transition. Output frame size: 1280x720 (16:9). Show the completed bridge pier from a fixed wide view, then make a slow, smooth camera move to a closer three-quarter view. Keep the bridge pier, ground, lighting, materials, and construction state unchanged. Do not show construction progress, object replacement, or new equipment. I will provide the first and last frames to the video model later. Return English and Chinese positive and negative prompts.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "treats the clip as a viewpoint transition rather than a construction action",
+        "allows only the camera or viewpoint change",
+        "locks the construction state and scene objects",
+        "includes 1280x720 in both positive prompts",
+        "returns English and Chinese positive and negative prompts"
+      ]
+    },
+    {
+      "id": "behavior-08",
+      "prompt": "Clip type: static_showcase. Output frame size: 1024x576 (16:9). Present the completed retaining-wall section in a stable, clear engineering view. Keep the camera, construction state, geometry, materials, and site unchanged. Do not add construction motion, camera movement, workers, labels, or new objects. Use the uploaded first and last frames as endpoint references. Return English and Chinese positive and negative prompts.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "treats the clip as a static showcase",
+        "keeps the camera and construction state stable",
+        "forbids unrequested construction motion and new objects",
+        "includes 1024x576 in both positive prompts",
+        "returns English and Chinese positive and negative prompts"
       ]
     }
   ]

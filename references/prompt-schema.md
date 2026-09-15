@@ -2,6 +2,12 @@
 
 Use `unknown` when a value should exist but cannot be recovered. Use `not_applicable` only when the field is genuinely irrelevant. Do not use an empty string to hide missing evidence.
 
+For ordinary prompt generation, `clip_type` and `frame_size` are required. The
+three clip types route the prompt logic: construction state change,
+camera/viewpoint change only, or stable showcase. `frame_size` records the exact
+requested output width and height; the same dimensions must also be configured
+in the target workflow.
+
 ## Interpretation Card and State Card
 
 For an ordinary prompt request, frames are not required. Use `input_mode` to distinguish a text-only request from a request that includes actual visual references supplied for wording refinement.
@@ -11,9 +17,11 @@ project: "project name"
 case_id: "stable-case-id"
 clip_id: "clip-01"
 input_mode: "description_first | description_plus_frames | repair"
-construction_stage: "single stage or operation"
+clip_type: "construction_action | viewpoint_transition | static_showcase"
+frame_size: "width x height in pixels, optionally with aspect ratio"
+construction_stage: "single stage, operation, or subject"
 mode: "fixed_camera_action | camera_only | mixed"
-primary_action: "one primary action"
+primary_action: "one primary action, viewpoint change, or stable showcase intent"
 target_effect: "desired visible effect"
 first_frame: "path or URI, or not_supplied"
 last_frame: "path or URI, or not_supplied"
