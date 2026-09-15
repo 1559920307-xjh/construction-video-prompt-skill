@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1",
+  "skill_name": "construction-video-prompt-engineering",
+  "skill_version": "0.1",
+  "run_date": "YYYY-MM-DD",
+  "runner": "unknown",
+  "model_or_agent_version": "unknown",
+  "results": [
+    {
+      "eval_id": "replace-with-eval-id",
+      "route_result": "pass | partial | fail",
+      "expectation_results": [
+        {
+          "expectation": "copy one expectation from evals.json",
+          "result": "pass | partial | fail",
+          "notes": ""
+        }
+      ],
+      "overall_result": "pass | partial | fail",
+      "notes": ""
+    }
+  ],
+  "release_decision": "pending",
+  "summary": ""
+}

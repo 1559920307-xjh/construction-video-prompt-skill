@@ -1,0 +1,101 @@
+{
+  "schema_version": "0.3",
+  "skill_name": "construction-video-prompt-engineering",
+  "notes": "Public text-only behavioral cases. They do not require project media, model accounts, or proprietary workflows.",
+  "evals": [
+    {
+      "id": "trigger-positive-01",
+      "prompt": "I want a fixed-camera construction video of the first excavation layer of a foundation pit. Keep the retaining wall and excavator positions unchanged. Remove only the exposed soil inside the pit from the top downward so the change in excavation depth is clear. I will upload the first and last frames to the video model later. Output copy-ready Chinese and English positive and negative prompts.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "does not block on the absent frames",
+        "writes a copy-ready English positive and negative prompt",
+        "describes downward removal inside a bounded area",
+        "locks the wall, camera, and machine",
+        "puts first/last-frame endpoint wording in the positive prompt by default"
+      ]
+    },
+    {
+      "id": "trigger-positive-02",
+      "prompt": "The last frame of the previous clip and the first frame of the next clip look different, and the excavator drifted. Repair the prompt based on this failure and determine whether the endpoint frames need to be rebuilt.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "checks bridge-frame equality before expanding the prompt",
+        "separates prompt repair from input/workflow repair",
+        "does not claim a fix without a new output"
+      ]
+    },
+    {
+      "id": "trigger-positive-03",
+      "prompt": "I only remember that cross-case generation worked very well, but now I have only the first and last frames, several videos, and one workflow. The model name and seed are missing. Help me organize this into a publishable case.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "classifies the case as artifact-backed partial",
+        "preserves unknown model and seed fields",
+        "separates user recollection from reproducible evidence",
+        "proposes a separate benchmark bundle rather than putting media in SKILL.md"
+      ]
+    },
+    {
+      "id": "trigger-negative-01",
+      "prompt": "Write a cinematic prompt for a cyberpunk aerial promotional video of a city. It does not need engineering structure or first/last-frame constraints.",
+      "expected_route": "avoid_skill",
+      "expected_reason": "generic cinematic video prompt"
+    },
+    {
+      "id": "behavior-01",
+      "prompt": "The stage is reinforcement and embedded-part installation. The first frame contains only the blinding layer, and the last frame contains a sparse reinforcement grid and a specified number of bolts. Use these endpoint frames to produce Chinese and English positive and negative prompts.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "states the appearance order",
+        "uses the supplied count instead of inventing a fixed project count",
+        "forbids the completed foundation and equipment from appearing early",
+        "refines the prompt from supplied endpoint facts"
+      ]
+    },
+    {
+      "id": "behavior-02",
+      "prompt": "There is one Wan FLF2V workflow and seven stage images, but no generated video. Determine whether this qualifies as a successful case.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "classifies it as process-only",
+        "does not call it a successful generation result",
+        "lists the missing output and run evidence"
+      ]
+    },
+    {
+      "id": "behavior-03",
+      "prompt": "A construction project has accumulated dozens of historical finished videos, endpoint frames, and segment keywords, but there is no unified scoring, and the model version and seed cannot be found. Determine whether this can be called a public benchmark directly, and help organize the cases.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "classifies the surviving material as artifact-backed partial rather than a complete public benchmark",
+        "treats the video collection as a historical material pool rather than independently reproducible runs",
+        "uses qualitative QA without inventing quantitative scores",
+        "separates artifact evidence, reproducibility, reuse, and public-release status"
+      ]
+    },
+    {
+      "id": "behavior-04",
+      "prompt": "I want a construction-video prompt for hammer pile driving. Use a fixed camera. The hammer drops to strike the pile cap, and the precast pile sinks vertically. The video must clearly show the hammer impacts and downward penetration. Do not show workers, extra piles, text, or a completed group-pile state. I will upload the first and last frames later.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "produces copy-ready prompts without requiring the frames first",
+        "puts first/last-frame endpoint wording in the positive prompt by default",
+        "locks the rig, hammer-pile components, and fixed camera",
+        "makes hammer impact and vertical pile penetration the primary action",
+        "does not invent exact pile count, penetration percentage, model, or output settings"
+      ]
+    },
+    {
+      "id": "behavior-05",
+      "prompt": "Write a pure text-to-video prompt without first or last frames. Use a fixed camera to show concrete pouring. Let concrete gradually fill only the inside of the formwork while the formwork and reinforcement remain unchanged. Do not show a cured or completed state.",
+      "expected_route": "use_skill",
+      "expectations": [
+        "omits first/last-frame endpoint wording because pure text-to-video is explicitly requested",
+        "still locks the camera, formwork, and reinforcement",
+        "describes concrete filling only inside the formwork",
+        "forbids later curing or completed-stage content"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": "0.1",
+  "skill_name": "construction-video-prompt-engineering",
+  "skill_version": "0.1",
+  "run_date": "2026-09-15",
+  "runner": "Independent subagent behavior simulation with manual expectation review",
+  "model_or_agent_version": "unknown",
+  "results": [
+    {
+      "eval_id": "trigger-positive-01",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "does not block on the absent frames", "result": "pass"},
+        {"expectation": "writes a copy-ready English positive and negative prompt", "result": "pass"},
+        {"expectation": "describes downward removal inside a bounded area", "result": "pass"},
+        {"expectation": "locks the wall, camera, and machine", "result": "pass"},
+        {"expectation": "puts first/last-frame endpoint wording in the positive prompt by default", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "Description-first excavation prompt is produced without requiring frame files."
+    },
+    {
+      "eval_id": "trigger-positive-02",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "checks bridge-frame equality before expanding the prompt", "result": "pass"},
+        {"expectation": "separates prompt repair from input/workflow repair", "result": "pass"},
+        {"expectation": "does not claim a fix without a new output", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "Repair response marks equality as unverified when files are absent and prioritizes hash or image-level comparison."
+    },
+    {
+      "eval_id": "trigger-positive-03",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "classifies the case as artifact-backed partial", "result": "pass"},
+        {"expectation": "preserves unknown model and seed fields", "result": "pass"},
+        {"expectation": "separates user recollection from reproducible evidence", "result": "pass"},
+        {"expectation": "proposes a separate benchmark bundle rather than putting media in SKILL.md", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "Historical evidence is classified conservatively and kept separate from the core skill."
+    },
+    {
+      "eval_id": "trigger-negative-01",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "expected_reason: generic cinematic video prompt", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "The unrelated cyberpunk promotional-video request is routed out of scope."
+    },
+    {
+      "eval_id": "behavior-01",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "states the appearance order", "result": "pass"},
+        {"expectation": "uses the supplied count instead of inventing a fixed project count", "result": "pass"},
+        {"expectation": "forbids the completed foundation and equipment from appearing early", "result": "pass"},
+        {"expectation": "refines the prompt from supplied endpoint facts", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "Endpoint facts drive ordered reinforcement and embedded-part appearance."
+    },
+    {
+      "eval_id": "behavior-02",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "classifies it as process-only", "result": "pass"},
+        {"expectation": "does not call it a successful generation result", "result": "pass"},
+        {"expectation": "lists the missing output and run evidence", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "The setup is classified as C_process_only because no verified video output exists."
+    },
+    {
+      "eval_id": "behavior-03",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "classifies the surviving material as artifact-backed partial rather than a complete public benchmark", "result": "pass"},
+        {"expectation": "treats the video collection as a historical material pool rather than independently reproducible runs", "result": "pass"},
+        {"expectation": "uses qualitative QA without inventing quantitative scores", "result": "pass"},
+        {"expectation": "separates artifact evidence, reproducibility, reuse, and public-release status", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "The collection is treated as material_pool with independent status fields."
+    },
+    {
+      "eval_id": "behavior-04",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "produces copy-ready prompts without requiring the frames first", "result": "pass"},
+        {"expectation": "puts first/last-frame endpoint wording in the positive prompt by default", "result": "pass"},
+        {"expectation": "locks the rig, hammer-pile components, and fixed camera", "result": "pass"},
+        {"expectation": "makes hammer impact and vertical pile penetration the primary action", "result": "pass"},
+        {"expectation": "does not invent exact pile count, penetration percentage, model, or output settings", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "The full visible pile-driving assembly is locked while impact and vertical penetration remain the only permitted actions."
+    },
+    {
+      "eval_id": "behavior-05",
+      "route_result": "pass",
+      "expectation_results": [
+        {"expectation": "omits first/last-frame endpoint wording because pure text-to-video is explicitly requested", "result": "pass"},
+        {"expectation": "still locks the camera, formwork, and reinforcement", "result": "pass"},
+        {"expectation": "describes concrete filling only inside the formwork", "result": "pass"},
+        {"expectation": "forbids later curing or completed-stage content", "result": "pass"}
+      ],
+      "overall_result": "pass",
+      "notes": "The pure text-to-video exception preserves construction constraints without endpoint conditioning."
+    }
+  ],
+  "release_decision": "public_preview",
+  "summary": "9 of 9 route checks pass and all 33 listed expectations pass. This is a text-only behavioral result and is not evidence that every target video model will render every construction clip correctly."
+}

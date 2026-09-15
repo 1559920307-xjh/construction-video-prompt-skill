@@ -1,0 +1,8 @@
+interface:
+  display_name: "Construction Video Prompt Engineering"
+  short_description: "Construction video prompts with frame-aware control"
+  brand_color: "#2563EB"
+  default_prompt: "Use $construction-video-prompt-engineering to write a copy-ready construction video prompt from my stage description."
+
+policy:
+  allow_implicit_invocation: true
